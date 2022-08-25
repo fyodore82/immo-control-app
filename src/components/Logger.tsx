@@ -80,7 +80,7 @@ const Logger: FC<Props> = ({
   }), [rotatePortsView])
 
   return (
-    <Box display='flex'>
+    <Box display='flex' flex='1 1 65%' sx={{ minHeight: 0 }}>
       <Box display='flex' flexDirection='column' flex='1'>
         <Box display='flex' mb={1}>
           <FormControlLabel
@@ -106,7 +106,7 @@ const Logger: FC<Props> = ({
           {logs.length === 0 && <ListItem>Log is empty</ListItem>}
           {logs.map(log => (
             <ListItem
-              key={log.dateTime}
+              key={log.logKey}
               sx={{ padding: `0 16px` }}
             >
               {new Date(log.dateTime).toLocaleTimeString()}: {log.message}

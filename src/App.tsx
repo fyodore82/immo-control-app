@@ -1,15 +1,24 @@
 import { Tab, Tabs, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import BeanDebugTab from './components/BeanDebugTab';
 import Logger from './components/Logger';
 import useUsbDevice from './usb/useUsbDevice';
 import useUsbSendFeatureRequest from './usb/useUsbSendFeatureRequest'
 import { USBFeatureRequests } from './usb/usbFeatureRequests';
+import SPIDebugTab from './components/SPIDebugTab'
+import { createStructuredSelector } from "reselect"
+import { RootState } from "./redux/store"
+import { useSelector } from 'react-redux';
+import { setEchoReceived } from './redux/logsReducer';
 
 const vendorId = 0x04D8
 const productId = 0x0032
+
+const selector = createStructuredSelector({
+  echoReceived: (state: RootState) => state.logsReducer.echoReceived,
+})
 
 const App: FC = () => {
   const {
@@ -18,9 +27,11 @@ const App: FC = () => {
     device,
   } = useUsbDevice()
 
+  const { echoReceived } = useSelector(selector)
+
   const sendUsbFeatureReq = useUsbSendFeatureRequest(device)
 
-  const deviceDisconnected = !device || !device.opened
+  const deviceDisconnected = false // || !device || !device.opened
 
   const [tab, setTab] = useState<string | undefined>('BeanDebugTab')
 
@@ -56,6 +67,13 @@ const App: FC = () => {
           Send USB_NO_CMD
         </Button>
         <Button
+          variant='contained'
+          onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_ECHO)}
+          sx={{ marginLeft: 1, outline: echoReceived ? '3px solid green' : undefined }}
+        >
+          Sent Test Feature Request
+        </Button>
+        <Button
           sx={{ marginLeft: 1 }}
           variant='contained'
           color='secondary'
@@ -67,9 +85,10 @@ const App: FC = () => {
       </Box>
 
       <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
-        <Tab label='Debugger' value='debugger' disabled={deviceDisconnected} />
+        <Tab label='BEAN debug' value='BeanDebugTab' disabled={deviceDisconnected} />
+        <Tab label='SPI debug' value='SpiDebugTab' disabled={deviceDisconnected} />
       </Tabs>
-      <Box p={3} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box'>
+      <Box pt={1} pb={1} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box'>
         {deviceDisconnected ? (
           <Typography
             sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}
@@ -79,6 +98,7 @@ const App: FC = () => {
         ) : (
           <>
             {tab === 'BeanDebugTab' && <BeanDebugTab device={device} />}
+            {tab === 'SpiDebugTab' && <SPIDebugTab device={device} />}
           </>
         )}
       </Box>

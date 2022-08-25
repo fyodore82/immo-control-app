@@ -10,7 +10,7 @@ const Port: FC<{ portName: keyof LogsState['ports'] | string, ports: any }> = ({
   <Box
     sx={{
       width: 60,
-      backgroundColor: ports[portName] === true ? 'lightgreen' : ports[portName] === false ? 'lightred' : 'lightgrey',
+      backgroundColor: ports[portName] === true ? 'lightgreen' : ports[portName] === false ? 'lightpink' : 'lightgrey',
       textAlign: 'center',
     }}
   >
