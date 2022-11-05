@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { log, processUsbEvent } from '../redux/logsReducer';
+import { useDispatch, useSelector } from 'react-redux';
+import { log } from '../redux/logsReducer';
+import { RootState } from '../redux/store';
+import processUsbEvent from './processUsbEvent'
 
 const vendorId = 0x04D8
 const productId = 0x0032
@@ -8,6 +10,7 @@ const productId = 0x0032
 const useUsbDevice = () => {
   const [device, setDevice] = useState<HIDDevice | undefined>(undefined)
   const dispatch: any = useDispatch()
+  const logKnownEvents = useSelector((state: RootState) => state.logsReducer.logKnownEvents)
 
   const handleConnect = useCallback(async () => {
     try {
@@ -27,14 +30,14 @@ const useUsbDevice = () => {
   useEffect(() => {
     if (!device) return
     const onInputReport = (event: HIDInputReportEvent) => {
-      dispatch(processUsbEvent(event))
+      processUsbEvent({ event, dispatch, logKnownEvents })
     }
     device.addEventListener('inputreport', onInputReport)
     return () => {
       device.removeEventListener('inputreport', onInputReport)
     }
 
-  }, [device, dispatch])
+  }, [device, dispatch, logKnownEvents])
 
   const handleDisconnect = useCallback(async () => {
     if (device) {

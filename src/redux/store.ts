@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import logsReducer from './logsReducer'
 import spiReducer from './spiReducer'
+import beanReducer from './beanReducer'
 import logger from 'redux-logger'
 import thunk from 'redux-thunk'
 
@@ -8,6 +9,7 @@ const store = configureStore({
   reducer: {
     logsReducer,
     spiReducer,
+    beanReducer,
   },
   middleware: [thunk, logger],
 })
