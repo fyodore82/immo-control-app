@@ -76,7 +76,7 @@ const SPIDebugTab: FC<Props> = ({ device }) => {
         </Button>
         {statusRegBits.map((reg) => (
           <Box sx={{ display: 'flex' }}>
-            <Port portName={reg} ports={statusReg} />
+            <Port portName={reg} portState={statusReg[reg]} />
             {reg === 'WEN' && (
               <Button
                 sx={{ padding: 0, fontSize: 10 }}

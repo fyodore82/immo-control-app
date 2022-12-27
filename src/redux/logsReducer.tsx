@@ -36,6 +36,16 @@ export type LogsState = {
     rb13?: boolean
     rb14?: boolean
     rb15?: boolean
+
+    MCLR?: undefined
+    VSS?: undefined
+    VDD?: undefined
+
+    Vbus?: undefined
+    AVdd?: undefined
+    AVss?: undefined
+    Vcap?: undefined
+    Vusb?: undefined
   }
 }
 

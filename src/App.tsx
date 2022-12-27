@@ -12,6 +12,7 @@ import { createStructuredSelector } from "reselect"
 import { RootState } from "./redux/store"
 import { useSelector } from 'react-redux';
 import { setEchoReceived } from './redux/logsReducer';
+import PortsTab from './components/PortsTab';
 
 const vendorId = 0x04D8
 const productId = 0x0032
@@ -87,6 +88,7 @@ const App: FC = () => {
       <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
         <Tab label='BEAN debug' value='BeanDebugTab' disabled={deviceDisconnected} />
         <Tab label='SPI debug' value='SpiDebugTab' disabled={deviceDisconnected} />
+        <Tab label='Ports' value='PortsDebugTab' />
       </Tabs>
       <Box pt={1} pb={1} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box'>
         {deviceDisconnected ? (
@@ -99,6 +101,7 @@ const App: FC = () => {
           <>
             {tab === 'BeanDebugTab' && <BeanDebugTab device={device} />}
             {tab === 'SpiDebugTab' && <SPIDebugTab device={device} />}
+            {tab === 'PortsDebugTab' && <PortsTab device={device} />}
           </>
         )}
       </Box>

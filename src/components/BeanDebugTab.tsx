@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import beanCmdAsArrSelector from '../selectors/beanCmdAsArrSelector';
 import { BeanState, sendBeanCmd, setBean, setCmdType, setMinDelayMs, setRepeatCnt } from '../redux/beanReducer';
 import { RootState } from '../redux/store';
-import { USBFeatureRequests, USBSubCommand } from '../usb/usbFeatureRequests';
+import { USBFeatureRequests } from '../usb/usbFeatureRequests';
 import useUsbSendFeatureRequest from '../usb/useUsbSendFeatureRequest';
 
 type Props = {
@@ -45,22 +45,6 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
 
   return (
     <Box display='flex' flex={1}>
-      <Box width={240} display='flex' flexDirection='column'>
-        <Button
-          variant='contained'
-          onClick={() => handleSendTestRequest(USBFeatureRequests.USB_BEAN_DEBUG, USBSubCommand.BEAN_DEBUG_SET_1)}
-          sx={{ marginTop: 1 }}
-        >
-          Bean Debug: Set to 1
-        </Button>
-        <Button
-          variant='contained'
-          onClick={() => handleSendTestRequest(USBFeatureRequests.USB_BEAN_DEBUG, USBSubCommand.BEAN_DEBUG_SET_0)}
-          sx={{ marginTop: 1 }}
-        >
-          Bean Debug: Set to 0
-        </Button>
-      </Box>
       <Box display='flex' ml={2} flex={1} flexDirection='column'>
         <Typography>
           Format: |PRI-ML(ML=auto calc)|DST-ID|MSG-ID|Data(1~11)|

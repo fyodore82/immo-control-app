@@ -4,54 +4,17 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import Button from "@mui/material/Button"
-import { FC, useMemo } from "react"
+import { FC } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { createStructuredSelector } from "reselect"
-import { clearLog, toggleLogKnownEvents, toggleRotatePortsView } from "../redux/logsReducer"
+import { clearLog, toggleLogKnownEvents } from "../redux/logsReducer"
 import { RootState } from "../redux/store"
-import Port from "./Port"
 import useUsbSendFeatureRequest from "../usb/useUsbSendFeatureRequest"
-import { USBFeatureRequests } from "../usb/usbFeatureRequests"
 
 const selector = createStructuredSelector({
   logs: (state: RootState) => state.logsReducer.logs,
   logKnownEvents: (state: RootState) => state.logsReducer.logKnownEvents,
-  ports: (state: RootState) => state.logsReducer.ports,
-  rotatePortsView: (state: RootState) => state.logsReducer.rotatePortsView,
 })
-
-const leftPorts = [
-  'MCLR',
-  'ra0',
-  'ra1',
-  'rb0',
-  'rb1',
-  'rb2',
-  'rb3',
-  'VSS',
-  'ra2',
-  'ra3',
-  'rb4',
-  'ra4',
-  'VDD',
-  'rb5',
-]
-const rightPorts = [
-  'Vbus',
-  'rb7',
-  'rb8',
-  'rb9',
-  'Vss',
-  'Vcap',
-  'rb10',
-  'rb11',
-  'Vusb',
-  'rb13',
-  'rb14',
-  'rb15',
-  'AVss',
-  'AVdd',
-]
 
 type Props = {
   sendUsbFeatureReq: ReturnType<typeof useUsbSendFeatureRequest>,
@@ -65,19 +28,9 @@ const Logger: FC<Props> = ({
   const {
     logs,
     logKnownEvents,
-    ports,
-    rotatePortsView,
   } = useSelector(selector)
 
   const dispatch = useDispatch()
-
-  const {
-    leftPortsLocal,
-    rightPortsLocal
-  } = useMemo(() => ({
-    leftPortsLocal: rotatePortsView ? rightPorts : leftPorts,
-    rightPortsLocal: rotatePortsView ? [...leftPorts].reverse() : [...rightPorts].reverse(),
-  }), [rotatePortsView])
 
   return (
     <Box display='flex' flex='1 1 65%' sx={{ minHeight: 0 }}>
@@ -113,31 +66,6 @@ const Logger: FC<Props> = ({
             </ListItem>
           ))}
         </List>
-      </Box>
-      <Box display='flex' flexDirection='column' ml={1}>
-        <Button
-          variant='outlined'
-          color='primary'
-          disabled={deviceDisconnected}
-          onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_GET_PORTS_STATE)}
-        >
-          Req ports
-        </Button>
-        <Box display='flex' flexDirection='row' mb={1} mt={1}>
-          <Box>
-            {leftPortsLocal.map(portName => <Port portName={portName} ports={ports} />)}
-          </Box>
-          <Box>
-            {rightPortsLocal.map(portName => <Port portName={portName} ports={ports} />)}
-          </Box>
-        </Box>
-        <Button
-          variant='outlined'
-          color='secondary'
-          onClick={() => dispatch(toggleRotatePortsView())}
-        >
-          Rotate
-        </Button>
       </Box>
     </Box>
   )

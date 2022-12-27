@@ -1,7 +1,9 @@
 export const enum USBFeatureRequests {
   USB_NO_CMD = 0,
-  USB_BEAN_DEBUG = 1,
+  // USB_BEAN_DEBUG = 1,
   USB_GET_PORTS_STATE = 2,
+  USB_SET_PORT_STATE0 = 3,  // Data[0] = port number
+  USB_SET_PORT_STATE1 = 4,
 
   USB_SPI_SEND_CMD = 0x11,
 
