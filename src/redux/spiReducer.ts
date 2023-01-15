@@ -1,4 +1,5 @@
 import {  createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { stringToByteArr } from "../helpers/stringToByteArr";
 
 export const name = 'spiReducer'
 
@@ -6,6 +7,8 @@ export const spiSelector = (state: any): SPIState => state[name]
 
 export type SPIState = {
   cmd: string
+  addr: string
+  data: string
   statusReg: {
     _RDY?: boolean
     WEN?: boolean
@@ -18,6 +21,8 @@ export type SPIState = {
 
 const initialState: SPIState = {
   cmd: '',
+  addr: '',
+  data: '',
   statusReg: {},
 }
 
@@ -27,6 +32,12 @@ const spiReducer = createSlice({
   reducers: {
     setSpiCmd: (state, { payload }: PayloadAction<string>) => {
       state.cmd = payload
+    },
+    setSpiAddr: (state, { payload }: PayloadAction<string>) => {
+      if (payload.length <= 6) state.addr = payload
+    },
+    setSpiData: (state, { payload }: PayloadAction<string>) => {
+      if (payload.length <= 8) state.data = payload
     },
     setStatusReg: (state, { payload }: PayloadAction<number>) => {
       state.statusReg._RDY = !!(payload & 0b1);
@@ -42,6 +53,8 @@ const spiReducer = createSlice({
 export const {
   setSpiCmd,
   setStatusReg,
+  setSpiAddr,
+  setSpiData,
 } = spiReducer.actions
 
 export default spiReducer.reducer

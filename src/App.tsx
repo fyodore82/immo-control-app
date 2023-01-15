@@ -32,7 +32,7 @@ const App: FC = () => {
 
   const sendUsbFeatureReq = useUsbSendFeatureRequest(device)
 
-  const deviceDisconnected = false // || !device || !device.opened
+  const deviceDisconnected = !device || !device.opened
 
   const [tab, setTab] = useState<string | undefined>('BeanDebugTab')
 
@@ -41,7 +41,9 @@ const App: FC = () => {
       <Box display='flex' alignItems='center' mb={1}>
         <Typography>
           Device status (VID: {vendorId.toString(16)}, PID: {productId.toString(16)}):{' '}
-          <b>{deviceDisconnected ? 'disconnected' : 'connected'}</b>
+          <b style={{ color: deviceDisconnected ? 'red' : 'green' }}>
+            {deviceDisconnected ? 'disconnected' : 'connected'}
+          </b>
         </Typography>
       </Box>
       <Box display='flex' alignItems='center' mb={1}>
@@ -86,24 +88,21 @@ const App: FC = () => {
       </Box>
 
       <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
-        <Tab label='BEAN debug' value='BeanDebugTab' disabled={deviceDisconnected} />
-        <Tab label='SPI debug' value='SpiDebugTab' disabled={deviceDisconnected} />
+        <Tab label='BEAN debug' value='BeanDebugTab' />
+        <Tab label='SPI debug' value='SpiDebugTab' />
         <Tab label='Ports' value='PortsDebugTab' />
       </Tabs>
       <Box pt={1} pb={1} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box'>
-        {deviceDisconnected ? (
+        {/* {deviceDisconnected ? (
           <Typography
             sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}
           >
             Connect device first
           </Typography>
-        ) : (
-          <>
-            {tab === 'BeanDebugTab' && <BeanDebugTab device={device} />}
-            {tab === 'SpiDebugTab' && <SPIDebugTab device={device} />}
-            {tab === 'PortsDebugTab' && <PortsTab device={device} />}
-          </>
-        )}
+        ) : ( */}
+        {tab === 'BeanDebugTab' && <BeanDebugTab device={device} />}
+        {tab === 'SpiDebugTab' && <SPIDebugTab device={device} />}
+        {tab === 'PortsDebugTab' && <PortsTab device={device} />}
       </Box>
       <Logger sendUsbFeatureReq={sendUsbFeatureReq} deviceDisconnected={deviceDisconnected} />
     </Box>
