@@ -47,7 +47,7 @@ const rightPorts: {
     { pin: 'Vbus' },
     { pin: 'rb7', name: 'ASR+12', in: true },
     { pin: 'rb8', name: 'BEAN IN', in: true },
-    { pin: 'rb9', name: 'GND' },
+    { pin: 'rb9', name: 'RB9', out: true, mask: [0, 0, 0, 0, 0, 0, 0b10, 0, 0] },
     { pin: 'VSS' },
     { pin: 'Vcap' },
     { pin: 'rb10', name: 'USB D+' },
