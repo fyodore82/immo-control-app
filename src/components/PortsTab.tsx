@@ -9,10 +9,12 @@ import Port from "./Port"
 import useUsbSendFeatureRequest from "../usb/useUsbSendFeatureRequest"
 import { USBFeatureRequests } from "../usb/usbFeatureRequests"
 import TogglePort from "./TogglePort"
+import { Typography } from "@mui/material"
 
 const selector = createStructuredSelector({
   ports: (state: RootState) => state.logsReducer.ports,
   rotatePortsView: (state: RootState) => state.logsReducer.rotatePortsView,
+  globalState: (state: RootState) => state.logsReducer.globalState,
 })
 
 const leftPorts: {
@@ -68,6 +70,7 @@ const PortsTab: FC<Props> = ({ device }) => {
   const {
     ports,
     rotatePortsView,
+    globalState,
   } = useSelector(selector)
 
   const dispatch = useDispatch()
@@ -89,7 +92,7 @@ const PortsTab: FC<Props> = ({ device }) => {
   }, [sendUsbFeatureReq])
 
   return (
-    <Box display='flex' ml={1} minWidth={0} justifyContent='center'>
+    <Box display='flex' ml={1} minWidth={0} justifyContent='space-evenly'>
       <Box display='flex' flexDirection='column' ml={1}>
         <Box display='flex'>
           <Button
@@ -98,14 +101,6 @@ const PortsTab: FC<Props> = ({ device }) => {
             onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_GET_PORTS_STATE)}
           >
             Req ports
-          </Button>
-          <Button
-            variant='outlined'
-            color='primary'
-            sx={{ marginLeft: 1 }}
-            onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_MONITOR_PORTS_STATE)}
-          >
-            Monitor ports
           </Button>
         </Box>
         <Box display='flex' flexDirection='row' mb={1} mt={1}>
@@ -135,6 +130,68 @@ const PortsTab: FC<Props> = ({ device }) => {
         >
           Rotate
         </Button>
+      </Box>
+      <Box>
+        <Box display='flex'>
+          <Button
+            variant='outlined'
+            color='primary'
+            onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_GET_GLOBAL_STATE)}
+          >
+            Req Global State
+          </Button>
+          <Button
+            variant='outlined'
+            color='primary'
+            sx={{ marginLeft: 1 }}
+            onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_MONITOR_GLOBAL_STATE)}
+          >
+            Monitor Global State
+          </Button>
+        </Box>
+        <Box display='flex' flexDirection='column'>
+          <Box display='flex' flexDirection='row'>
+            <Typography>spiAddr: </Typography>
+            <Typography sx={{ fontWeight: 'bold' }}>{globalState.spiAddr != null ? `0x${globalState.spiAddr?.toString(16)}` : ''}</Typography>
+          </Box>
+          <Box display='flex' flexDirection='row'>
+            <Typography>spiTask: </Typography>
+            <Typography sx={{ fontWeight: 'bold' }}>{globalState.spiTask != null ? `0x${globalState.spiTask?.toString(16)}` : ''}</Typography>
+          </Box>
+          <Box display='flex' flexDirection='row'>
+            <Typography>initialTasks: </Typography>
+            <Typography sx={{ fontWeight: 'bold' }}>{globalState.initialTasks != null ? `0x${globalState.initialTasks?.toString(16)}` : ''}</Typography>
+          </Box>
+
+          <Box display='flex' flexDirection='row' justifyContent='space-between'>
+            <Typography sx={{ whiteSpace: 'pre' }}>
+              buttonTest:
+              <Typography component='span' sx={{ fontWeight: 'bold' }}>{globalState.buttonTest != null ? `0x${globalState.buttonTest?.toString(16)}` : ''}</Typography>
+            </Typography>
+            <Port portName='Button' portState={globalState.buttonIn} />
+          </Box>
+          <Box display='flex' flexDirection='row' justifyContent='space-between'>
+            <Typography sx={{ whiteSpace: 'pre' }}>
+              capotTest:
+              <Typography component='span' sx={{ fontWeight: 'bold' }}>{globalState.capotTest != null ? `0x${globalState.capotTest?.toString(16)}` : ''}</Typography>
+            </Typography>
+            <Port portName='Capot' portState={globalState.capotIn} />
+          </Box>
+          <Box display='flex' flexDirection='row' justifyContent='space-between'>
+            <Typography sx={{ whiteSpace: 'pre' }}>
+              immoSenceTest:
+              <Typography component='span' sx={{ fontWeight: 'bold' }}>{globalState.immoSenceTest != null ? `0x${globalState.immoSenceTest?.toString(16)}` : ''}</Typography>
+            </Typography>
+            <Port portName='Immo Sence' portState={globalState.immoSenceIn} />
+          </Box>
+          <Box display='flex' flexDirection='row' justifyContent='space-between'>
+            <Typography sx={{ whiteSpace: 'pre' }}>
+              asr12VTest:
+              <Typography component='span' sx={{ fontWeight: 'bold' }}>{globalState.asr12VTest != null ? `0x${globalState.asr12VTest?.toString(16)}` : ''}</Typography>
+            </Typography>
+            <Port portName='ASR 12V' portState={globalState.asr12VIn} />
+          </Box>
+        </Box>
       </Box>
     </Box >
   )

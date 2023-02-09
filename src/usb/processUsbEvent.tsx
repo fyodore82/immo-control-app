@@ -1,6 +1,6 @@
 import { SPICommand, USBFeatureResponses } from "./usbFeatureRequests";
 import { setStatusReg } from "../redux/spiReducer";
-import { log, setEchoReceived, setPins } from "../redux/logsReducer";
+import { log, setEchoReceived, setGlobalState, setPins } from "../redux/logsReducer";
 
 const knownSpiCommands: { [key in SPICommand]?: boolean } = {
   [SPICommand.StatusRegRead]: true,
@@ -14,6 +14,7 @@ const knownEvents = {
   [USBFeatureResponses.USB_POST_SPI_RESP]: (usbData: SPICommand) => knownSpiCommands[usbData],
   [USBFeatureResponses.USB_GOT_BEAN_CMD]: () => true,
   [USBFeatureResponses.USB_GOT_REC_TICKS]: () => true,
+  [USBFeatureResponses.USB_GOT_GLOBAL_STATE]: () => true,
 }
 
 const processUsbEvent = ({
@@ -83,6 +84,28 @@ const processUsbEvent = ({
           break
       }
       break
+    }
+    case USBFeatureResponses.USB_GOT_GLOBAL_STATE: {
+      // 1 - 4 bytes: spiAddr (uint32_t)
+      const spiAddr = event.data.getUint8(4) + (event.data.getUint8(3) << 8) + (event.data.getUint8(2) << 16) + (event.data.getUint8(1) << 24)
+      // ports are debounced ports
+      const ports = event.data.getUint8(7);
+      dispatch(setGlobalState({
+        spiAddr,
+        spiTask: event.data.getUint8(5),
+        initialTasks: event.data.getUint8(6),
+
+        buttonIn: !!(ports & 0b00000001),
+        capotIn: !!(ports & 0b00000010),
+        immoSenceIn: !!(ports & 0b00000100),
+        asr12VIn: !!(ports & 0b00001000),
+
+        buttonTest: event.data.getUint8(8),
+        capotTest: event.data.getUint8(9),
+        immoSenceTest: event.data.getUint8(10),
+        asr12VTest: event.data.getUint8(11),
+      }))
+      break;
     }
   }
   if (logKnownEvents

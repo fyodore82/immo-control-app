@@ -46,7 +46,22 @@ export type LogsState = {
     AVss?: undefined
     Vcap?: undefined
     Vusb?: undefined
-  }
+  },
+  globalState: {
+    spiAddr?: number
+    spiTask?: number
+    initialTasks?: number
+
+    buttonIn?: boolean
+    capotIn?: boolean
+    immoSenceIn?: boolean
+    asr12VIn?: boolean
+
+    buttonTest?: number
+    capotTest?: number
+    immoSenceTest?: number
+    asr12VTest?: number
+  },
 }
 
 const initialState: LogsState = {
@@ -56,6 +71,7 @@ const initialState: LogsState = {
   rotatePortsView: false,
   ports: {},
   echoReceived: false,
+  globalState: {},
 }
 
 const logsReducer = createSlice({
@@ -99,6 +115,9 @@ const logsReducer = createSlice({
       state.ports.rb14 = !!(ports[6] & 0b1000000);
       state.ports.rb15 = !!(ports[6] & 0b10000000);
     },
+    setGlobalState: (state, { payload }: PayloadAction<LogsState['globalState']>) => {
+      state.globalState = payload
+    },
     toggleLogKnownEvents: (state) => {
       state.logKnownEvents = !state.logKnownEvents
     },
@@ -118,6 +137,7 @@ export const {
   toggleLogKnownEvents,
   toggleRotatePortsView,
   setEchoReceived,
+  setGlobalState,
 } = logsReducer.actions
 
 export default logsReducer.reducer
