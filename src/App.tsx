@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { setEchoReceived } from './redux/logsReducer';
 import PortsTab from './components/PortsTab';
 import SoundsTab from './components/SoundsTab';
+import ReadSPILogTab from './components/ReadSpiLogTab';
 
 const vendorId = 0x04D8
 const productId = 0x0032
@@ -91,10 +92,11 @@ const App: FC = () => {
       <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
         <Tab label='BEAN debug' value='BeanDebugTab' />
         <Tab label='SPI debug' value='SpiDebugTab' />
+        <Tab label='Read SPI log' value='ReadSpiLogTab' />
         <Tab label='Ports' value='PortsDebugTab' />
         <Tab label='Sounds' value='SoundsTab' />
       </Tabs>
-      <Box pt={1} pb={1} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box'>
+      <Box pt={1} pb={1} display='flex' flex='1 1 50%' flexDirection='column' boxSizing='border-box' minHeight={0}>
         {/* {deviceDisconnected ? (
           <Typography
             sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}
@@ -104,6 +106,7 @@ const App: FC = () => {
         ) : ( */}
         {tab === 'BeanDebugTab' && <BeanDebugTab device={device} />}
         {tab === 'SpiDebugTab' && <SPIDebugTab device={device} />}
+        {tab === 'ReadSpiLogTab' && <ReadSPILogTab device={device} />}
         {tab === 'PortsDebugTab' && <PortsTab device={device} />}
         {tab === 'SoundsTab' && <SoundsTab device={device} />}
       </Box>

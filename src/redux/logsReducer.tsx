@@ -61,6 +61,10 @@ export type LogsState = {
     capotTest?: number
     immoSenceTest?: number
     asr12VTest?: number
+
+    ms10?: number
+    min?: number
+    hour?: number
   },
 }
 

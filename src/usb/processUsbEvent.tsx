@@ -1,6 +1,7 @@
 import { SPICommand, USBFeatureResponses } from "./usbFeatureRequests";
-import { setStatusReg } from "../redux/spiReducer";
+import { addToSpiLog, setStatusReg } from "../redux/spiReducer";
 import { log, setEchoReceived, setGlobalState, setPins } from "../redux/logsReducer";
+import store from "../redux/store";
 
 const knownSpiCommands: { [key in SPICommand]?: boolean } = {
   [SPICommand.StatusRegRead]: true,
@@ -78,6 +79,10 @@ const processUsbEvent = ({
     case USBFeatureResponses.USB_POST_SPI_RESP: {
       // SPI response format: |USB cmd|SPI rec: 2 bytes|SPI Sent cmd|
       const spiCommand: SPICommand = event.data.getUint8(9);
+      if (store.getState().spiReducer.isReadingSpiLog) {
+        dispatch(addToSpiLog([event.data.getUint8(5), event.data.getUint8(6), event.data.getUint8(7), event.data.getUint8(8)]))
+        break
+      }
       switch (spiCommand) {
         case SPICommand.StatusRegRead:
           dispatch(setStatusReg(event.data.getUint8(2)))
@@ -104,6 +109,10 @@ const processUsbEvent = ({
         capotTest: event.data.getUint8(9),
         immoSenceTest: event.data.getUint8(10),
         asr12VTest: event.data.getUint8(11),
+
+        ms10: event.data.getUint8(12) + (event.data.getUint8(13) << 8),
+        min: event.data.getUint8(14),
+        hour: event.data.getUint8(15),
       }))
       break;
     }

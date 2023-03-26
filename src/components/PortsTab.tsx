@@ -91,6 +91,15 @@ const PortsTab: FC<Props> = ({ device }) => {
     if (state === true) sendUsbFeatureReq(USBFeatureRequests.USB_SET_PORT_STATE1, undefined, mask)
   }, [sendUsbFeatureReq])
 
+  const { hour, min, ms10 } = globalState
+
+  const msWsec = ms10 !== undefined ? ms10 * 10 : undefined
+  const sec = msWsec !== undefined ? Math.floor(msWsec / 1000) : undefined
+  const ms = (msWsec !== undefined && sec !== undefined) ? msWsec - (sec * 1000) : undefined
+  const time = (hour != null && min != null && sec != null && ms != null)
+    ? `${hour}h:${min}m:${sec}s.${ms}`
+    : ''
+
   return (
     <Box display='flex' ml={1} minWidth={0} justifyContent='space-evenly'>
       <Box display='flex' flexDirection='column' ml={1}>
@@ -153,6 +162,10 @@ const PortsTab: FC<Props> = ({ device }) => {
           <Box display='flex' flexDirection='row'>
             <Typography>spiAddr: </Typography>
             <Typography sx={{ fontWeight: 'bold' }}>{globalState.spiAddr != null ? `0x${globalState.spiAddr?.toString(16)}` : ''}</Typography>
+          </Box>
+          <Box display='flex' flexDirection='row'>
+            <Typography>time: </Typography>
+            <Typography sx={{ fontWeight: 'bold' }}>{time}</Typography>
           </Box>
           <Box display='flex' flexDirection='row'>
             <Typography>spiTask: </Typography>

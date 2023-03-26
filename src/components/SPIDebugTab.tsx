@@ -4,12 +4,14 @@ import Button from '@mui/material/Button';
 import { createSelector } from '@reduxjs/toolkit';
 import { FC } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { addZeroesToArr } from '../helpers/addZeroesToAddr';
 import { removeNonHexChars, stringToByteArr } from '../helpers/stringToByteArr';
 import { setSpiAddr, setSpiCmd, setSpiData } from '../redux/spiReducer';
 import { RootState } from '../redux/store';
 import { SPICommand, USBFeatureRequests } from '../usb/usbFeatureRequests';
 import useUsbSendFeatureRequest from '../usb/useUsbSendFeatureRequest'
 import Port from './Port'
+import ReadSPILog from './ReadSpiLogTab';
 
 type Props = {
   device: HIDDevice | undefined
@@ -25,15 +27,6 @@ const statusRegBits: (keyof RootState['spiReducer']['statusReg'])[] = [
 ]
 
 const numArrTox16StrArr = (arr: number[]) => arr.map((val) => val.toString(16).toUpperCase())
-const addZeroesToArr = (arr: number[], zCnt: number) => {
-  // Fill byteArr with 0 up to zCnt bytes
-  // OR remove bytes that are more than zCnt
-  const st = Math.min(arr.length, zCnt)
-  const del = Math.max(0, arr.length - zCnt)
-  const add = Math.max(0, zCnt - arr.length)
-  arr.splice(st, del, ...(new Array(add).fill(0)))
-  return arr
-}
 
 const selector = createSelector([
   (state: RootState) => state.spiReducer.cmd,
@@ -76,7 +69,7 @@ const SPIDebugTab: FC<Props> = ({ device }) => {
   } = useSelector(selector)
 
   return (
-    <Box display='flex' flex={1}>
+    <Box display='flex' flex={1} minHeight={0}>
       <Box display='flex' flex={1} flexDirection='column'>
         <Box display='flex' sx={{ marginBottom: 1 }}>
           <TextField

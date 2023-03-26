@@ -48,5 +48,4 @@ export const enum SPICommand {
   WriteDisable = 0x04,
   StatusRegRead = 0x05,
   StatusRegWrite = 0x01,
-
 }
