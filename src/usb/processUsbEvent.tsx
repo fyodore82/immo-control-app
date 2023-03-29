@@ -113,6 +113,8 @@ const processUsbEvent = ({
         ms10: event.data.getUint8(12) + (event.data.getUint8(13) << 8),
         min: event.data.getUint8(14),
         hour: event.data.getUint8(15),
+
+        immoState: event.data.getUint8(16),
       }))
       break;
     }

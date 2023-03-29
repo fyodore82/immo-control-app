@@ -119,7 +119,6 @@ const spiReducer = createSlice({
         state.spiLog.unshift([state.startAddr, hour, min, sec, ms - (sec * 1000), 0xFF, 0xFF, 0xFF, 0xFF])
       }
       else {
-
         state.spiLog[0][5] = payload[0]
         state.spiLog[0][6] = payload[1]
         state.spiLog[0][7] = payload[2]

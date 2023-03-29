@@ -58,8 +58,8 @@ const ReadSPILogTab: FC<Props> = ({ device }) => {
   useEffect(() => {
     if (!isReadingSpiLog) return;
     const wordsToRead =
-      (parseInt(endAddr || "7FFFF", 16) - parseInt(startAddr, 16)) / 4;
-    setPropgress((spiLog.length * 2 * 100) / (wordsToRead + 1));
+      (parseInt(endAddr || "7FFFF", 16) - parseInt(startAddr, 16)) / 8;
+    setPropgress((spiLog.length * 100) / (wordsToRead + 1));
   }, [endAddr, isReadingSpiLog, spiLog.length, startAddr]);
 
   return (

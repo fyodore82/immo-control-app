@@ -10,6 +10,7 @@ import useUsbSendFeatureRequest from "../usb/useUsbSendFeatureRequest"
 import { USBFeatureRequests } from "../usb/usbFeatureRequests"
 import TogglePort from "./TogglePort"
 import { Typography } from "@mui/material"
+import { immoState } from "./SPILogEntry"
 
 const selector = createStructuredSelector({
   ports: (state: RootState) => state.logsReducer.ports,
@@ -35,7 +36,7 @@ const leftPorts: {
     { pin: 'ra2', name: 'CLK' },
     { pin: 'ra3', name: 'CLK' },
     { pin: 'rb4', name: 'Capot', in: true },
-    { pin: 'ra4', name: 'ImmoOn', out: true, mask: [0, 0, 0, 0b10000, 0, 0, 0, 0] },
+    { pin: 'ra4', name: 'RA4', in: true }, // mask: [0, 0, 0, 0b10000, 0, 0, 0, 0] },
     { pin: 'VDD' },
     { pin: 'rb5', name: 'ImmoSence', in: true },
   ]
@@ -49,7 +50,7 @@ const rightPorts: {
     { pin: 'Vbus' },
     { pin: 'rb7', name: 'ASR+12', in: true },
     { pin: 'rb8', name: 'BEAN IN', in: true },
-    { pin: 'rb9', name: 'RB9', out: true, mask: [0, 0, 0, 0, 0, 0, 0b10, 0, 0] },
+    { pin: 'rb9', name: 'ImmoOn', out: true, mask: [0, 0, 0, 0, 0, 0, 0b10, 0, 0] },
     { pin: 'VSS' },
     { pin: 'Vcap' },
     { pin: 'rb10', name: 'USB D+' },
@@ -99,6 +100,8 @@ const PortsTab: FC<Props> = ({ device }) => {
   const time = (hour != null && min != null && sec != null && ms != null)
     ? `${hour}h:${min}m:${sec}s.${ms}`
     : ''
+
+  const st = globalState.immoState ? immoState[globalState.immoState] : undefined
 
   return (
     <Box display='flex' ml={1} minWidth={0} justifyContent='space-evenly'>
@@ -174,6 +177,10 @@ const PortsTab: FC<Props> = ({ device }) => {
           <Box display='flex' flexDirection='row'>
             <Typography>initialTasks: </Typography>
             <Typography sx={{ fontWeight: 'bold' }}>{globalState.initialTasks != null ? `0x${globalState.initialTasks?.toString(16)}` : ''}</Typography>
+          </Box>
+          <Box display='flex' flexDirection='row'>
+            <Typography>immoState: </Typography>
+            <Typography sx={{ fontWeight: 'bold', backgroundColor: st?.backgroundColor }}>{st?.name  || ''}</Typography>
           </Box>
 
           <Box display='flex' flexDirection='row' justifyContent='space-between'>

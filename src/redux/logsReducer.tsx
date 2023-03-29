@@ -65,6 +65,8 @@ export type LogsState = {
     ms10?: number
     min?: number
     hour?: number
+
+    immoState?: number
   },
 }
 
@@ -118,6 +120,7 @@ const logsReducer = createSlice({
       state.ports.rb13 = !!(ports[6] & 0b100000);
       state.ports.rb14 = !!(ports[6] & 0b1000000);
       state.ports.rb15 = !!(ports[6] & 0b10000000);
+
     },
     setGlobalState: (state, { payload }: PayloadAction<LogsState['globalState']>) => {
       state.globalState = payload
