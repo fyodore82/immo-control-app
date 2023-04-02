@@ -7,14 +7,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createStructuredSelector } from "reselect";
 import { removeNonHexChars } from "../helpers/stringToByteArr";
 import {
   clearSpiLog,
   readSpiLog,
-  setStartAddr,
+  setEnteredStartAddr,
   setEndAddr,
 } from "../redux/spiReducer";
 import { RootState } from "../redux/store";
@@ -30,13 +30,14 @@ const selector = createStructuredSelector({
   isReadingSpiLog: (state: RootState) => state.spiReducer.isReadingSpiLog,
 
   startAddr: (state: RootState) => state.spiReducer.startAddr,
+  enteredStartAddr: (state: RootState) => state.spiReducer.enteredStartAddr,
   endAddr: (state: RootState) => state.spiReducer.endAddr,
 });
 
 const ReadSPILogTab: FC<Props> = ({ device }) => {
   const sendUsbReq = useUsbSendFeatureRequest(device);
   const dispatch: any = useDispatch();
-  const { spiLog, isReadingSpiLog, startAddr, endAddr } = useSelector(selector);
+  const { spiLog, isReadingSpiLog, startAddr, endAddr, enteredStartAddr } = useSelector(selector);
 
   const [readPromise, setReadPromise] = useState<any>();
 
@@ -53,14 +54,15 @@ const ReadSPILogTab: FC<Props> = ({ device }) => {
     }
   }, [dispatch, readPromise, sendUsbReq]);
 
-  const [progress, setPropgress] = useState<number>();
+  // const [progress, setPropgress] = useState<number>();
 
-  useEffect(() => {
-    if (!isReadingSpiLog) return;
+  const progress = useMemo(() => {
+    if (!isReadingSpiLog) return 0;
     const wordsToRead =
-      (parseInt(endAddr || "7FFFF", 16) - parseInt(startAddr, 16)) / 8;
-    setPropgress((spiLog.length * 100) / (wordsToRead + 1));
-  }, [endAddr, isReadingSpiLog, spiLog.length, startAddr]);
+      parseInt(endAddr || "7FFFF", 16) - parseInt(enteredStartAddr || '0', 16);
+    const wordsRead = parseInt(endAddr || "7FFFF", 16) - parseInt(startAddr || '0', 16);
+    return wordsRead / wordsToRead;
+  }, [endAddr, enteredStartAddr, isReadingSpiLog, startAddr]);
 
   return (
     <Box display="flex" mr={2} ml={2} flex='1' minHeight={0}>
@@ -70,10 +72,10 @@ const ReadSPILogTab: FC<Props> = ({ device }) => {
         </Button>
         <Box display="flex" flexDirection="row" mt={1} mb={1}>
           <TextField
-            value={startAddr}
+            value={enteredStartAddr}
             onChange={(event) => {
               dispatch(
-                setStartAddr(removeNonHexChars(event.target.value).slice(0, 6))
+                setEnteredStartAddr(removeNonHexChars(event.target.value).slice(0, 6))
               );
             }}
             sx={{ width: "100%", marginRight: 1 }}

@@ -67,6 +67,7 @@ export type LogsState = {
     hour?: number
 
     immoState?: number
+    immoInState?: number
   },
 }
 

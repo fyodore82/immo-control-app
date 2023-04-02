@@ -3,16 +3,19 @@ import { addToSpiLog, setStatusReg } from "../redux/spiReducer";
 import { log, setEchoReceived, setGlobalState, setPins } from "../redux/logsReducer";
 import store from "../redux/store";
 
-const knownSpiCommands: { [key in SPICommand]?: boolean } = {
-  [SPICommand.StatusRegRead]: true,
-  [SPICommand.WriteDisable]: true,
-  [SPICommand.WriteEnable]: true,
-}
+// const knownSpiCommands: { [key in SPICommand]?: boolean } = {
+//   [SPICommand.StatusRegRead]: true,
+//   [SPICommand.WriteDisable]: true,
+//   [SPICommand.WriteEnable]: true,
+// }
 
 const knownEvents = {
   [USBFeatureResponses.USB_POST_PORTS_STATE]: () => true,
   [USBFeatureResponses.USB_ECHO]: () => true,
-  [USBFeatureResponses.USB_POST_SPI_RESP]: (usbData: SPICommand) => knownSpiCommands[usbData],
+
+  [USBFeatureResponses.USB_POST_SPI_RESP]: () => true,
+  [USBFeatureResponses.USB_POST_SPI_REGS]: () => true,
+
   [USBFeatureResponses.USB_GOT_BEAN_CMD]: () => true,
   [USBFeatureResponses.USB_GOT_REC_TICKS]: () => true,
   [USBFeatureResponses.USB_GOT_GLOBAL_STATE]: () => true,
@@ -76,20 +79,15 @@ const processUsbEvent = ({
         }))
       break
     }
-    case USBFeatureResponses.USB_POST_SPI_RESP: {
-      // SPI response format: |USB cmd|SPI rec: 2 bytes|SPI Sent cmd|
-      const spiCommand: SPICommand = event.data.getUint8(9);
+    case USBFeatureResponses.USB_POST_SPI_RESP:
+      // const spiCommand: SPICommand = event.data.getUint8(9);
       if (store.getState().spiReducer.isReadingSpiLog) {
         dispatch(addToSpiLog([event.data.getUint8(5), event.data.getUint8(6), event.data.getUint8(7), event.data.getUint8(8)]))
-        break
-      }
-      switch (spiCommand) {
-        case SPICommand.StatusRegRead:
-          dispatch(setStatusReg(event.data.getUint8(2)))
-          break
       }
       break
-    }
+    case USBFeatureResponses.USB_POST_SPI_REGS:
+      dispatch(setStatusReg(event.data.getUint8(2)))
+      break
     case USBFeatureResponses.USB_GOT_GLOBAL_STATE: {
       // 1 - 4 bytes: spiAddr (uint32_t)
       const spiAddr = event.data.getUint8(4) + (event.data.getUint8(3) << 8) + (event.data.getUint8(2) << 16) + (event.data.getUint8(1) << 24)
@@ -115,13 +113,14 @@ const processUsbEvent = ({
         hour: event.data.getUint8(15),
 
         immoState: event.data.getUint8(16),
+        immoInState: event.data.getUint8(17),
       }))
       break;
     }
   }
   if (logKnownEvents
     || !knownEvents[usbEventId]
-    || !knownEvents[usbEventId](event.data.getUint8(9))) {
+    || !knownEvents[usbEventId]()) {
     dispatch(log({
       message: `RId: ${event.reportId}, L: ${event.data.byteLength}, Data: `
         + new Array(event.data.byteLength).fill(0).map((_, i) => event.data.getUint8(i).toString(16)).join(' '),

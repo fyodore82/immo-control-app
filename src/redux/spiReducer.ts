@@ -10,8 +10,9 @@ export const name = 'spiReducer'
 export const spiSelector = (state: any): SPIState => state[name]
 
 export enum SPILogCmd {
-  LOG_ENTRY_RESET = 0x0,    // When device has been reset
-  LOG_ENTRY_STATE_CHANGE = 0x1,
+  LOG_ENTRY_RESET = 0x1,    // When device has been reset
+  LOG_ENTRY_STATE_CHANGE = 0x2,
+  LOG_ENTRY_IMMO_IN_5S_DELAY = 0x3,
 }
 
 export type SPIState = {
@@ -30,6 +31,7 @@ export type SPIState = {
   // [address, hour, min, sec, ms, SPILogCmd, data, data, data]
   spiLog: [string, number, number, number, number, SPILogCmd, number, number, number][]
   isReadingSpiLog: boolean
+  enteredStartAddr: string
   startAddr: string
   endAddr: string
 
@@ -45,7 +47,8 @@ const initialState: SPIState = {
 
   spiLog: [],
   isReadingSpiLog: false,
-  startAddr: '',
+  enteredStartAddr: '', // Is used on UI to start reading. It is not changed during SPI read
+  startAddr: '', // Is changed during read
   endAddr: '',
   isAddToSpiLogFirstByte: false,
 }
@@ -58,11 +61,13 @@ export const readSpiLog = createAsyncThunk<
 >(
   'readSpiLog',
   async ({ sendUsbReq }, { signal, getState, dispatch }) => {
-    let startAddrStr = (getState() as RootState).spiReducer.startAddr
+    let startAddrStr = (getState() as RootState).spiReducer.enteredStartAddr
     const endAddrStr = (getState() as RootState).spiReducer.endAddr
 
     let startAddr = isNaN(parseInt(startAddrStr, 16)) ? 0 : Math.floor(parseInt(startAddrStr, 16) / 8) * 8
     const endAddr = isNaN(parseInt(endAddrStr, 16)) ? 0 : Math.floor(parseInt(endAddrStr, 16) / 8) * 8
+
+    dispatch(spiReducer.actions.setStartAddr(`000000${startAddr.toString(16)}`.slice(-6)))
 
     if (startAddr > endAddr && endAddr > 0) return
     while(!signal.aborted
@@ -133,6 +138,9 @@ const spiReducer = createSlice({
     setStartAddr: (state, { payload }: PayloadAction<string>) => {
       state.startAddr = payload
     },
+    setEnteredStartAddr: (state, { payload }: PayloadAction<string>) => {
+      state.enteredStartAddr = payload
+    },
     setEndAddr: (state, { payload }: PayloadAction<string>) => {
       state.endAddr = payload
     },
@@ -158,7 +166,7 @@ export const {
 
   addToSpiLog,
   clearSpiLog,
-  setStartAddr,
+  setEnteredStartAddr,
   setEndAddr,
 } = spiReducer.actions
 

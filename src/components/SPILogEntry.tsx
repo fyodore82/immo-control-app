@@ -19,6 +19,11 @@ const spiLogCmdToName: {
     backgroundColor: "#91b3f4",
     isEndOfLog: false,
   },
+  [SPILogCmd.LOG_ENTRY_IMMO_IN_5S_DELAY]: {
+    name: "5s",
+    backgroundColor: "#91d3d4",
+    isEndOfLog: false,
+  },
   0xff: { name: "END OF LOG", backgroundColor: "lightgreen", isEndOfLog: true },
 };
 
@@ -52,10 +57,23 @@ export const immoState: { [state: number]: { name: string; backgroundColor: stri
   3: { name: "IMMO_ALERT", backgroundColor: "#f4919d" },
 };
 
+export const immoInState: { [state: number]: { name: string; backgroundColor: string } } = {
+  0: { name: "UNKNOWN", backgroundColor: "#cdccd5" },
+  1: { name: "IMMO_IN_OK", backgroundColor: "#91f4a6" },
+  2: { name: "IMMO_IN_ALERT", backgroundColor: "#f4919d" },
+};
+
 const getState = (d1: number, d2: number) => {
-  const st = immoState[d1]
+  const st = immoState[d1 & 0x0F]
+  const inSt = immoState[(d1 & 0xF0) >> 4]
   return (
     <>
+      <Box
+        component="span"
+        sx={{ border: "1px solid white", backgroundColor: inSt?.backgroundColor }}
+      >
+        {inSt?.name || '-'}
+      </Box>
       <Box
         component="span"
         sx={{ border: "1px solid white", backgroundColor: st?.backgroundColor }}
@@ -75,6 +93,17 @@ const getState = (d1: number, d2: number) => {
     </>
   );
 };
+
+const get5sTime = (d1: number, d2: number) => {
+  return (
+      <Box
+        component="span"
+        sx={{ border: "1px solid white", color: 'white', padding: '0 5px', backgroundColor: 'teal' }}
+      >
+        {((d1 << 8) + d2) * 10}ms
+      </Box>
+  )
+}
 
 const getPortInState = (d3: number) => (
   <>
@@ -152,6 +181,9 @@ const SPILogEntry: FC<{ log: SPIState["spiLog"][number] }> = ({
         {!isEndOfLog &&
           cmd === SPILogCmd.LOG_ENTRY_STATE_CHANGE &&
           getState(d1, d2)}
+        {!isEndOfLog &&
+          cmd === SPILogCmd.LOG_ENTRY_IMMO_IN_5S_DELAY &&
+          get5sTime(d1, d2)}
         {!isEndOfLog && getPortInState(d3)}
       </Box>
     </>

@@ -11,18 +11,19 @@ import { RootState } from '../redux/store';
 import { SPICommand, USBFeatureRequests } from '../usb/usbFeatureRequests';
 import useUsbSendFeatureRequest from '../usb/useUsbSendFeatureRequest'
 import Port from './Port'
-import ReadSPILog from './ReadSpiLogTab';
 
 type Props = {
   device: HIDDevice | undefined
 }
 
-const statusRegBits: (keyof RootState['spiReducer']['statusReg'])[] = [
+const statusRegBits: (keyof RootState['spiReducer']['statusReg'] | string)[] = [
   '_RDY',
   'WEN',
   'BP0',
   'BP1',
   'BP2',
+  '',
+  '',
   'SRWP',
 ]
 
@@ -158,14 +159,14 @@ const SPIDebugTab: FC<Props> = ({ device }) => {
       <Box display='flex' flexDirection='column'>
         <Button
           variant='outlined'
-          onClick={() => handleSendTestRequest(USBFeatureRequests.USB_SPI_SEND_CMD, undefined, [SPICommand.StatusRegRead, 0, 0, 0])}
+          onClick={() => handleSendTestRequest(USBFeatureRequests.USB_SPI_GET_REGS, undefined)}
           sx={{ height: 36.5, marginBotton: 1 }}
         >
           Status Reg
         </Button>
-        {statusRegBits.map((reg) => (
+        {statusRegBits.map((reg, index) => (
           <Box sx={{ display: 'flex' }}>
-            <Port portName={reg} portState={statusReg[reg]} />
+            <Port portName={`bit ${index}: ${reg}`} portState={(statusReg as any)[reg]} />
             {reg === 'WEN' && (
               <Button
                 sx={{ padding: 0, fontSize: 10 }}
@@ -176,6 +177,9 @@ const SPIDebugTab: FC<Props> = ({ device }) => {
                     undefined,
                     [statusReg.WEN ? SPICommand.WriteDisable : SPICommand.WriteEnable, 0, 0, 0]
                   )
+                  handleSendTestRequest(
+                    USBFeatureRequests.USB_SPI_GET_REGS,
+                    undefined)
                 }}
               >
                 {statusReg[reg] ? 'DIS' : 'EN'}

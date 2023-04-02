@@ -10,7 +10,7 @@ import useUsbSendFeatureRequest from "../usb/useUsbSendFeatureRequest"
 import { USBFeatureRequests } from "../usb/usbFeatureRequests"
 import TogglePort from "./TogglePort"
 import { Typography } from "@mui/material"
-import { immoState } from "./SPILogEntry"
+import { immoInState, immoState } from "./SPILogEntry"
 
 const selector = createStructuredSelector({
   ports: (state: RootState) => state.logsReducer.ports,
@@ -101,7 +101,8 @@ const PortsTab: FC<Props> = ({ device }) => {
     ? `${hour}h:${min}m:${sec}s.${ms}`
     : ''
 
-  const st = globalState.immoState ? immoState[globalState.immoState] : undefined
+  const st = globalState.immoState !== undefined ? immoState[globalState.immoState] : undefined
+  const inSt = globalState.immoInState !== undefined ? immoInState[globalState.immoInState] : undefined
 
   return (
     <Box display='flex' ml={1} minWidth={0} justifyContent='space-evenly'>
@@ -181,6 +182,8 @@ const PortsTab: FC<Props> = ({ device }) => {
           <Box display='flex' flexDirection='row'>
             <Typography>immoState: </Typography>
             <Typography sx={{ fontWeight: 'bold', backgroundColor: st?.backgroundColor }}>{st?.name  || ''}</Typography>
+            <Typography sx={{ marginLeft: 'auto' }}>immoInState: </Typography>
+            <Typography sx={{ fontWeight: 'bold', backgroundColor: inSt?.backgroundColor }}>{inSt?.name  || ''}</Typography>
           </Box>
 
           <Box display='flex' flexDirection='row' justifyContent='space-between'>

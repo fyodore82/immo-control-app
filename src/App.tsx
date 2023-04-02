@@ -64,6 +64,24 @@ const App: FC = () => {
         </Button>
         <Button
           sx={{ marginLeft: 'auto' }}
+          variant='outlined'
+          color='secondary'
+          onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_DISABLE_PERIODIC_IMMO_BEAN_CMD)}
+          disabled={deviceDisconnected}
+        >
+          Dis IMMO Bean cmd
+        </Button>
+        <Button
+          sx={{ marginLeft: 1 }}
+          variant='outlined'
+          color='primary'
+          onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_ENABLE_PERIODIC_IMMO_BEAN_CMD)}
+          disabled={deviceDisconnected}
+        >
+          En IMMO Bean cmd
+        </Button>
+        <Button
+          sx={{ marginLeft: 1 }}
           variant='contained'
           color='secondary'
           onClick={() => sendUsbFeatureReq(USBFeatureRequests.USB_NO_CMD)}
