@@ -2,6 +2,7 @@ import { SPICommand, USBFeatureResponses } from "./usbFeatureRequests";
 import { addToSpiLog, setStatusReg } from "../redux/spiReducer";
 import { log, setEchoReceived, setGlobalState, setPins } from "../redux/logsReducer";
 import store from "../redux/store";
+import { addCommand } from "../redux/beanReducer";
 
 // const knownSpiCommands: { [key in SPICommand]?: boolean } = {
 //   [SPICommand.StatusRegRead]: true,
@@ -39,16 +40,17 @@ const processUsbEvent = ({
       dispatch(setEchoReceived(true))
       setTimeout(() => dispatch(setEchoReceived(false)), 1000)
       break
-    case USBFeatureResponses.USB_GOT_BEAN_CMD:
-      dispatch(
-        log({
-          message: 'BEAN received: '
-            // Always display full bean command received as it may be erroneoues, so cannot relate on command length in first byte
-            + (new Array(17)).fill(0)
-              .map((_, i) => event.data.getUint8(i + 1).toString(16).toUpperCase())
-              .join(' '),
-        }))
+    case USBFeatureResponses.USB_GOT_BEAN_CMD: {
+      const cmd = (new Array(17)).fill(0).map((_, i) => event.data.getUint8(i + 1))
+      // dispatch(
+      //   log({
+      //     message: 'BEAN received: '
+      //       // Always display full bean command received as it may be erroneoues, so cannot relate on command length in first byte
+      //       + cmd.map((b) => b.toString(16).toUpperCase()).join(' '),
+      //   }))
+      dispatch(addCommand(cmd))
       break
+    }
     case USBFeatureResponses.USB_GOT_REC_TICKS: {
       // Format:
       // For each pulse on BEAN 2 bytes are received:

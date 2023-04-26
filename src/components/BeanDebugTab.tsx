@@ -1,13 +1,15 @@
-import { FormLabel, RadioGroup, Radio, FormControl, FormControlLabel, TextField, Tooltip, Typography } from '@mui/material';
+import { FormLabel, RadioGroup, Radio, FormControl, FormControlLabel, TextField, Tooltip, Typography, List, ListItem } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { FC, useRef, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import beanCmdAsArrSelector from '../selectors/beanCmdAsArrSelector';
-import { BeanState, sendBeanCmd, setBean, setCmdType, setMinDelayMs, setRepeatCnt } from '../redux/beanReducer';
+import { BeanState, clearCommands, sendBeanCmd, setBean, setCmdType, setMinDelayMs, setRepeatCnt } from '../redux/beanReducer';
 import { RootState } from '../redux/store';
 import { USBFeatureRequests } from '../usb/usbFeatureRequests';
 import useUsbSendFeatureRequest from '../usb/useUsbSendFeatureRequest';
+import SPILogEntry from './SPILogEntry';
+import BeanCmdLogEntry from './BeanCmdLogEntry';
 
 type Props = {
   device: HIDDevice | undefined
@@ -27,6 +29,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
     cmdType,
     minDelayMs,
     repeatCnt,
+    commands,
   } = useSelector((state: RootState) => state.beanReducer)
 
   const beanCmdAsArr = useSelector(beanCmdAsArrSelector)
@@ -45,7 +48,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
 
   return (
     <Box display='flex' flex={1}>
-      <Box display='flex' ml={2} flex={1} flexDirection='column'>
+      <Box display='flex' mr={2} flex={1} flexDirection='column'>
         <Typography>
           Format: |PRI-ML(ML=auto calc)|DST-ID|MSG-ID|Data(1~11)|
         </Typography>
@@ -60,7 +63,26 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
             <FormControl>
               <FormLabel>Send type</FormLabel>
               <RadioGroup value={cmdType} onChange={(event) => dispatch(setCmdType(event.target.value as any))}>
-                <FormControlLabel value="singleCmd" control={<Radio />} label="Single" />
+                <FormControlLabel
+                  value="singleCmd"
+                  control={<Radio />}
+                  label={
+                    <Box display='flex' justifyContent='space-between'>
+                      Single
+                      <Button
+                        variant='contained'
+                        onClick={() => handleSendTestRequest(
+                          cmdType === 'singleCmd' ? USBFeatureRequests.USB_LISTERN_BEAN : USBFeatureRequests.USB_LISTERN_BEAN_REC_TICKS,
+                          undefined)
+                        }
+                        sx={{ height: 36.5, marginLeft: '200px' }}
+                        disabled={cmdType !== 'tickCount' && cmdType !== 'singleCmd'}
+                      >
+                        {cmdType === 'tickCount' ? 'Listern Ticks' : 'Listern BEAN'}
+                      </Button>
+                  </Box>
+                }
+                />
                 <FormControlLabel
                   value="tickCount"
                   control={<Radio />}
@@ -109,6 +131,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
                 />
               </RadioGroup>
             </FormControl>
+            <Box display='flex' width='100%' justifyContent='space-between'>
             <Button
               variant='contained'
               onClick={(isBeanCmdSending) ? (() => promise.current.abort()) : handleSendCmd}
@@ -116,20 +139,29 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
             >
               {isBeanCmdSending ? 'Cancel command' : cmdTypeToBtnNameMap[cmdType]}
             </Button>
+
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={() => dispatch(clearCommands())}
+              sx={{ height: 36.5, marginTop: 1 }}
+            >
+              Clear BEAN Log
+            </Button>
+            </Box>
           </Box>
-          <Button
-            variant='contained'
-            onClick={() => handleSendTestRequest(
-              cmdType === 'singleCmd' ? USBFeatureRequests.USB_LISTERN_BEAN : USBFeatureRequests.USB_LISTERN_BEAN_REC_TICKS,
-              undefined)
-            }
-            sx={{ height: 36.5 }}
-            disabled={cmdType !== 'tickCount' && cmdType !== 'singleCmd'}
-          >
-            {cmdType === 'tickCount' ? 'Listern Ticks' : 'Listern BEAN'}
-          </Button>
         </Box>
       </Box>
+      <List
+        sx={{ border: `1px solid black`, flex: "1 1 50%", overflow: "auto" }}
+      >
+        {Object.values(commands).length === 0 && <ListItem>Log is empty</ListItem>}
+        {Object.entries(commands).map(([cmd, { cmdArr, count }]) => (
+          <ListItem key={cmd} sx={{ padding: `0 16px` }}>
+            <BeanCmdLogEntry cmdArr={cmdArr} count={count} />
+          </ListItem>
+        ))}
+      </List>
     </Box>
   )
 }

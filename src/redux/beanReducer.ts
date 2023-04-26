@@ -12,6 +12,8 @@ export type BeanState = {
   cmdType: 'singleCmd' | 'multiCmd' | 'tickCount'
   minDelayMs: number // If more than 1 - means send continiously
   repeatCnt: number
+
+  commands: { [cmd: string]: { cmdArr: number[], count: number } }
 }
 
 const initialState: BeanState = {
@@ -19,6 +21,8 @@ const initialState: BeanState = {
   cmdType: 'singleCmd',
   minDelayMs: 200,
   repeatCnt: 10,
+
+  commands: {},
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -63,6 +67,20 @@ const beanReducer = createSlice({
     setRepeatCnt: (state, { payload }: PayloadAction<number>) => {
       state.repeatCnt = payload
     },
+
+    addCommand: (state, { payload }: PayloadAction<number[]>) => {
+      const cmd = payload.map((b) => `0${b.toString(16)}`.slice(-2)).join('')
+      if (!state.commands[cmd]) {
+        state.commands[cmd] = {
+          cmdArr: payload,
+          count: 1,
+        }
+      }
+      else state.commands[cmd].count += 1
+    },
+    clearCommands: (state) => {
+      state.commands = {}
+    },
   },
 })
 
@@ -71,6 +89,9 @@ export const {
   setCmdType,
   setMinDelayMs,
   setRepeatCnt,
+
+  addCommand,
+  clearCommands,
 } = beanReducer.actions
 
 export default beanReducer.reducer
