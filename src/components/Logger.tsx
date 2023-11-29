@@ -33,7 +33,7 @@ const Logger: FC<Props> = ({
   const dispatch = useDispatch()
 
   return (
-    <Box display='flex' flex='1 1 65%' sx={{ minHeight: 0 }}>
+    <Box display='flex' flex='1 1 50%' sx={{ minHeight: 0 }}>
       <Box display='flex' flexDirection='column' flex='1'>
         <Box display='flex' mb={1}>
           <FormControlLabel

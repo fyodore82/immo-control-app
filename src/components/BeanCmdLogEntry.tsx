@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { FC } from "react";
+import { FC, memo } from "react";
 
 const BeanCmdLogEntry: FC<{ cmdArr: number[], count: number }> = ({ cmdArr, count }) => {
   const cmd = cmdArr.map((b) => `0${b.toString(16).toUpperCase()}`.slice(-2));
@@ -22,4 +22,4 @@ const BeanCmdLogEntry: FC<{ cmdArr: number[], count: number }> = ({ cmdArr, coun
   );
 };
 
-export default BeanCmdLogEntry;
+export default memo(BeanCmdLogEntry);

@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { FC } from "react";
+import { FC, memo } from "react";
 import { SPILogCmd, SPIState } from "../redux/spiReducer";
 
 const spiLogCmdToName: {
@@ -190,4 +190,4 @@ const SPILogEntry: FC<{ log: SPIState["spiLog"][number] }> = ({
   );
 };
 
-export default SPILogEntry;
+export default memo(SPILogEntry);

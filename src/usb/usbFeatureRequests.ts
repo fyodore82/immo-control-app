@@ -13,6 +13,7 @@ export const enum USBFeatureRequests {
   USB_LISTERN_BEAN = 0x22,
   USB_SEND_BEAN_CMD_REC_TICKS = 0x23, // Save ticks elapsed between NEAN IN port change
   USB_LISTERN_BEAN_REC_TICKS = 0x24, // Save ticks elapsed between NEAN IN port change
+  USB_SEND_BEAN_CMD_WO_LISTERN = 0x25,
 
   USB_PLAY_BEEP_SOUND = 0x31,
 

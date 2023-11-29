@@ -1,10 +1,10 @@
-import { FormLabel, RadioGroup, Radio, FormControl, FormControlLabel, TextField, Tooltip, Typography, List, ListItem } from '@mui/material';
+import { FormLabel, RadioGroup, Radio, FormControl, FormControlLabel, TextField, Tooltip, Typography, List, ListItem, Checkbox } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { FC, useRef, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import beanCmdAsArrSelector from '../selectors/beanCmdAsArrSelector';
-import { BeanState, clearCommands, sendBeanCmd, setBean, setCmdType, setMinDelayMs, setRepeatCnt } from '../redux/beanReducer';
+import { BeanState, clearCommands, sendBeanCmd, setBean, setCmdType, setMinDelayMs, setRepeatCnt, toggleSemdCmdWoListern } from '../redux/beanReducer';
 import { RootState } from '../redux/store';
 import { USBFeatureRequests } from '../usb/usbFeatureRequests';
 import useUsbSendFeatureRequest from '../usb/useUsbSendFeatureRequest';
@@ -27,6 +27,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
   const {
     beanCmd,
     cmdType,
+    sendCmdWoListern,
     minDelayMs,
     repeatCnt,
     commands,
@@ -47,7 +48,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
   }, [cmdType, device, dispatch])
 
   return (
-    <Box display='flex' flex={1}>
+    <Box display='flex' flex={1} minHeight={0}>
       <Box display='flex' mr={2} flex={1} flexDirection='column'>
         <Typography>
           Format: |PRI-ML(ML=auto calc)|DST-ID|MSG-ID|Data(1~11)|
@@ -58,8 +59,7 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
           helperText={beanCmdAsArr.map((val) => val.toString(16).toUpperCase()).join(' ')}
           sx={{ width: '100%' }}
         />
-        <Box display='flex'>
-          <Box display='flex' ml={2} width={500} flexDirection='column'>
+        <Box display='flex' ml={2} width={500} flexDirection='column'>
             <FormControl>
               <FormLabel>Send type</FormLabel>
               <RadioGroup value={cmdType} onChange={(event) => dispatch(setCmdType(event.target.value as any))}>
@@ -149,7 +149,15 @@ const BeanDebugTab: FC<Props> = ({ device }) => {
               Clear BEAN Log
             </Button>
             </Box>
-          </Box>
+            <FormControlLabel
+              label="Send w/o start receiving"
+              control={
+                <Checkbox
+                  checked={sendCmdWoListern}
+                  onChange={() => dispatch(toggleSemdCmdWoListern())}
+                />
+              }
+            />
         </Box>
       </Box>
       <List

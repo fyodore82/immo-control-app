@@ -48,7 +48,15 @@ const processUsbEvent = ({
       //       // Always display full bean command received as it may be erroneoues, so cannot relate on command length in first byte
       //       + cmd.map((b) => b.toString(16).toUpperCase()).join(' '),
       //   }))
-      dispatch(addCommand(cmd))
+      dispatch(addCommand(cmd));
+
+      const ml = (cmd[0] & 0x0F) + 3;
+      const isOtherData = cmd.slice(ml + 1).some(d => d);
+      if (isOtherData) {
+        dispatch(log({
+          message: `After BEAN Cmd other data is present!: ${cmd.slice(ml + 1).map(d => d.toString(16)).join(' ')}`,
+        }))
+      }
       break
     }
     case USBFeatureResponses.USB_GOT_REC_TICKS: {
